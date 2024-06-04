@@ -1,0 +1,61 @@
+{% set title = "Treatment Start Time" %}
+
+{% extends "base.html" %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/start-time.css') }}" type="text/css"/>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    
+    <button type="button" id="save_selection" class="btn btn-success mt-3 col-12">Save Selection</button>
+
+    <button type="button" id="select_all_sites" class="btn btn-primary mt-3" style="float:right">Select All Sites</button>
+    <button type="button" id="clear_selection" class="btn btn-warning mt-3" style="float:right">Clear Selection</button>
+    
+    {% for customer, site, field in data %}
+    <div class="customer mt-3">
+        <h3>{{ customer.name|replace("_", " ")|title }}</h3>
+
+        <div class="content">
+            {% for site in customer.sites %}
+            <div class="site">
+                <div class="row mt-3 mb-3">
+                    <p class="col-10 site-name">{{ site.name|replace("_", " ")|title }}</p>
+                    <input type="checkbox" class="col-2 siteCheck" data-site="{{ site.name }}" data-customer="{{ customer.name }}"/>
+                    <hr class="mt-3">
+                
+                    <div class="accordion accordion-flush" id="accordionFlush">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="flush-headingOne">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target='#flush-collapse{{ site.name|replace(" ", "_")|title }}' aria-expanded="false" aria-controls='flush-collapse{{ site.name|replace(" ", "_")|title }}'>
+                                Fields
+                                </button>
+                            </h2>
+                            <div id='flush-collapse{{ site.name|replace(" ", "_")|title }}' class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlush">
+                                <div class="accordion-body">
+                                    {% for field in site.fields %}
+                                    <div class="field">
+                                        <div class="row">
+                                            <p class="col-12">{{ field.name|replace("_"," ")|title }}</p>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div> <!-- accordion -->
+                
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/start-time.js') }}"></script>
+{% endblock %}

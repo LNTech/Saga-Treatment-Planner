@@ -1,0 +1,74 @@
+[
+    {
+        "customer": "chambers",
+        "site": "little_mockbeggar",
+        "lat": 51.421393,
+        "lng": 0.488758
+    },
+    {
+        "customer": "clockhouse",
+        "site": "coxheath",
+        "lat": 51.2300541111,
+        "lng": 0.5024221111
+    },
+    {
+        "customer": "clockhouse",
+        "site": "firmins",
+        "lat": 51.2082011111,
+        "lng": 0.4971831111
+    },
+    {
+        "customer": "clockhouse",
+        "site": "hatchgate",
+        "lat": 51.2178081111,
+        "lng": 0.4381891111
+    },
+    {
+        "customer": "east_scryne_fruit",
+        "site": "east_scryne_farm",
+        "lat": 56.523257,
+        "lng": -2.682951
+    },
+    {
+        "customer": "hughlowe",
+        "site": "mereworth",
+        "lat": 51.23315,
+        "lng": 0.371285
+    },
+    {
+        "customer": "lm_porter",
+        "site": "east_seaton_farm",
+        "lat": 56.56938,
+        "lng": -2.54837
+    },
+    {
+        "customer": "new_forest_fruit",
+        "site": "newhouse_farm",
+        "lat": 50.7966571111,
+        "lng": -1.4597651111
+    },
+    {
+        "customer": "new_forest_fruit",
+        "site": "penerley",
+        "lat": 50.835899,
+        "lng": -1.465027
+    },
+    {
+        "customer": "rumwood",
+        "site": "hill_farm_east",
+        "lat": 51.218427,
+        "lng": 0.651868
+    },
+    {
+        "customer": "rumwood",
+        "site": "ladds_ct_south",
+        "lat": 51.212146,
+        "lng": 0.573667
+    },
+    {
+        "customer": "the_summer_berry_company",
+        "site": "groves_farm",
+        "lat": 50.8109571111,
+        "lng": -0.7172591111
+    }
+]
