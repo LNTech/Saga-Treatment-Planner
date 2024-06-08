@@ -74,7 +74,8 @@ def post_data():
         return jsonify(data), 200
     return jsonify({}), 403
 
-@start_time.route("/add/customer", methods=["POST"])
+@start_time.route("/add/customer", methods=["POST"])+
+@basic_auth.required
 def add_customer():
     """ Adds customer to database"""
 
@@ -99,6 +100,7 @@ def add_customer():
     return jsonify({"message": "Unrecognized request"}), 400
 
 @start_time.route("/add/site", methods=["POST"])
+@basic_auth.required
 def add_site():
     """ Adds site to database """
     
@@ -128,6 +130,7 @@ def add_site():
     return jsonify({"message": "Unrecognized request"}), 400
 
 @start_time.route("/add/field", methods=["POST"])
+@basic_auth.required
 def add_field():
     """ Add field to database """
 
