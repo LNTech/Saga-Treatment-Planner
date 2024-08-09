@@ -1,0 +1,7 @@
+Flask
+Flask-BasicAuth
+Flask-SQLAlchemy
+gunicorn
+schedule
+discord.py
+ephem
