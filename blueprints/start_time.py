@@ -74,7 +74,7 @@ def post_data():
         return jsonify(data), 200
     return jsonify({}), 403
 
-@start_time.route("/add/customer", methods=["POST"])+
+@start_time.route("/add/customer", methods=["POST"])
 @basic_auth.required
 def add_customer():
     """ Adds customer to database"""
