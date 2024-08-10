@@ -1,0 +1,7 @@
+{
+    "webhooks": {        
+        "treatment_start_time": "",
+        "companion_start_time": ""
+    },
+    "schedule_time": ""
+}

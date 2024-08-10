@@ -1,3 +1,4 @@
+# models.py
 from extensions import db
 
 class Customer(db.Model):
