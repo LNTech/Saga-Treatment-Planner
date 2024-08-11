@@ -1,87 +1,85 @@
-from flask import Flask, render_template, request, flash, session, redirect, url_for, Blueprint, jsonify
-from flask_login import login_user, current_user, login_required, logout_user
-
-from werkzeug.security import generate_password_hash, check_password_hash
-from extensions import basic_auth, db
-from models import Customer, Site, Field, User, Invite
+# account.py
 import uuid
+
+from flask import render_template, request, flash, redirect, url_for, Blueprint, jsonify
+from flask_login import login_user, current_user, login_required, logout_user
+from werkzeug.security import generate_password_hash, check_password_hash
+
+from extensions import db
+from models import User, Invite
+
 account = Blueprint('account', __name__)
 
 def validate_data(*fields):
-    """Check if any of the provided fields are empty."""
+    """ Check if any of the provided fields are empty """
     return any(field.strip() == "" for field in fields)
 
 @account.route("/")
-@account.route("/login", methods=['GET'])
-def get_login():
-    if current_user.is_authenticated:
-        return redirect(url_for('start_time.main'))
-    
-    return render_template("account/login.html")
-
-@account.route("/login", methods=["POST"])
-def post_login():
+@account.route("/login", methods=["GET", "POST"])
+def login():
     if current_user.is_authenticated:
         return redirect(url_for('start_time.main'))
 
-    username = request.form.get("username", "").strip().lower()
-    password = request.form.get("password", "").strip()
+    if request.method == "GET":
+        return render_template("account/login.html")
 
-    if validate_data(username, password):
+    if request.method == "POST":
+        username = request.form.get("username", "").strip().lower()
+        password = request.form.get("password", "").strip()
+
+        if validate_data(username, password):
+            flash('Invalid username or password')
+            return redirect(url_for('account.login'))
+
+        user = db.session.query(User).filter_by(username=username).first()
+
+        if user and check_password_hash(user.password, password):
+            login_user(user, remember=True)
+            return redirect(url_for('start_time.main'))
+
         flash('Invalid username or password')
-        return redirect(url_for('account.get_login'))
+    return redirect(url_for('account.login'))
 
-    user = db.session.query(User).filter_by(username=username).first()
-    
-    if user and check_password_hash(user.password, password):
-        login_user(user, remember=True)
-        return redirect(url_for('start_time.main'))
 
-    flash('Invalid username or password')
-    return redirect(url_for('account.get_login'))
-    
-
-@account.route("/register", methods=["GET"])
-def get_register():
-    if current_user.is_authenticated:
-        return redirect(url_for('start_time.main'))
-    return render_template("account/register.html")
-
-@account.route("/register", methods=["POST"])
-def post_register():
+@account.route("/register", methods=["GET", "POST"])
+def register():
     if current_user.is_authenticated:
         return redirect(url_for('start_time.main'))
 
-    username = request.form.get("username", "").strip().lower()
-    password = request.form.get("password", "").strip()
-    invite_code = request.form.get("invite_code", "").strip()
+    if request.method == "GET":
+        return render_template("account/register.html")
 
-    if validate_data(username, password, invite_code):
-        flash('Invalid username, password, or invite code. Please try again.')
-        return redirect(url_for('account.get_register'))
+    if request.method == "POST":
+        username = request.form.get("username", "").strip().lower()
+        password = request.form.get("password", "").strip()
+        invite_code = request.form.get("invite_code", "").strip()
 
-    invite = db.session.query(Invite).filter_by(invite_code=invite_code).first()
-    if not invite or invite.is_redeemed:
-        flash('Invite code is invalid or has already been used.')
-        return redirect(url_for('account.get_register'))
+        if validate_data(username, password, invite_code):
+            flash('Invalid username, password, or invite code. Please try again.')
+            return redirect(url_for('account.register'))
 
-    if db.session.query(User).filter_by(username=username).first():
-        flash('Username already taken.')
-        return redirect(url_for('account.get_register'))
+        invite = db.session.query(Invite).filter_by(invite_code=invite_code).first()
+        if not invite or invite.is_redeemed:
+            flash('Invite code is invalid or has already been used.')
+            return redirect(url_for('account.register'))
 
-    hashed_password = generate_password_hash(password, method='scrypt')
+        if db.session.query(User).filter_by(username=username).first():
+            flash('Username already taken.')
+            return redirect(url_for('account.register'))
 
-    new_user = User(
-        uuid=str(uuid.uuid4()),
-        username=username,
-        password=hashed_password,
-        privileges="user"
-    )
-    db.session.add(new_user)
-    invite.is_redeemed = True
+        hashed_password = generate_password_hash(password, method='scrypt')
 
-    db.session.commit()
-    login_user(new_user)
+        new_user = User(
+            uuid=str(uuid.uuid4()),
+            username=username,
+            password=hashed_password,
+            privileges="user"
+        )
+        db.session.add(new_user)
+        invite.is_redeemed = True
+
+        db.session.commit()
+        login_user(new_user)
 
     return redirect(url_for('start_time.main'))
 
@@ -95,8 +93,7 @@ def generate_invite():
         db.session.add(new_invite)
         db.session.commit()
         return jsonify({"code": 0, "invite_code": invite_code})
-    else:
-        return jsonify({"code": 1, "error": "You do not have permission to do that"})
+    return jsonify({"code": 1, "error": "You do not have permission to do that"})
 
 
 @account.route("/logout", methods=["GET"])
@@ -104,33 +101,31 @@ def generate_invite():
 def logout():
     if current_user.is_authenticated:
         logout_user()
-    return redirect(url_for('account.get_login'))
-
-@account.route("/change_password", methods=["GET"])
-@login_required
-def get_change_password():
-    return render_template("account/change_password.html")
+    return redirect(url_for('account.login'))
 
 
 @account.route("/change_password", methods=["POST"])
 @login_required
-def post_change_password():
-    current_password = request.form.get("currentPassword", "")
-    new_password = request.form.get("newPassword", "") 
-    
-    if validate_data(current_password, new_password):
-        flash('Invalid password provided')
-        return redirect(url_for('start_time.main'))
-    
-    if not check_password_hash(current_user.password, current_password):
-        flash('Invalid password provided')
-        return redirect(url_for('start_time.main'))
-    
-    hashed_password = generate_password_hash(new_password, method='scrypt')
-    current_user.password = hashed_password
-    db.session.commit()
-    
-    flash('Password changed succesfully. Please log in again.')
-    logout_user()
-    return redirect(url_for('account.get_login'))
-    
+def change_password():
+    if request.method == "GET":
+        return render_template("account/change_password.html")
+
+    if request.method == "POST":
+        current_password = request.form.get("currentPassword", "")
+        new_password = request.form.get("newPassword", "")
+
+        if validate_data(current_password, new_password):
+            flash('Invalid password provided')
+            return redirect(url_for('start_time.main'))
+
+        if not check_password_hash(current_user.password, current_password):
+            flash('Invalid password provided')
+            return redirect(url_for('start_time.main'))
+
+        hashed_password = generate_password_hash(new_password, method='scrypt')
+        current_user.password = hashed_password
+        db.session.commit()
+
+        flash('Password changed succesfully. Please log in again.')
+        logout_user()
+    return redirect(url_for('account.login'))

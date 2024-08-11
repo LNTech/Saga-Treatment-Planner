@@ -1,18 +1,19 @@
 # flaskapp.py
-from flask import Flask, render_template, redirect, url_for, request, flash, session
-from extensions import basic_auth, db
+import uuid
+
+from flask import Flask, render_template, redirect, url_for, request, flash
+from flask_login import LoginManager, login_user
+from werkzeug.security import generate_password_hash
+
 from blueprints.start_time import start_time
 from blueprints.account import account
-from werkzeug.security import generate_password_hash
-from models import User
-import uuid
-from flask_login import LoginManager, login_user, current_user
-from discord_bot.run import run as run_bot
-app = Flask(__name__)
 
-app.config['BASIC_AUTH_USERNAME'] = ''
-app.config['BASIC_AUTH_PASSWORD'] = ''
-basic_auth.init_app(app)
+from extensions import db
+from models import User
+from discord_bot.run import run as run_bot
+
+
+app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -39,8 +40,8 @@ def index():
     if user_exists is None:
         return redirect(url_for('post_setup'))
     return render_template("index.html")
-    
 
+# Page needs styling
 @app.route("/setup", methods=["GET"])
 def get_setup():
     user_exists = db.session.query(User.id).first()
@@ -54,16 +55,23 @@ def post_setup():
     user_exists = db.session.query(User.id).first()
     if user_exists:
         return redirect(url_for('index'))
-        
+
     username = request.form.get("username")
     password = request.form.get("password")
 
     if username == "" or username is None:
         flash('Invalid username')
         return redirect(url_for('get_setup'))
-    
+
     hashed_password = generate_password_hash(password, method='scrypt')
-    new_user = User(uuid=str(uuid.uuid4()), username=username, password=hashed_password, privileges="admin")
+
+    new_user = User(
+        uuid=str(uuid.uuid4()),
+        username=username,
+        password=hashed_password,
+        privileges="admin"
+    )
+
     db.session.add(new_user)
     db.session.commit()
     db.session.refresh(new_user)

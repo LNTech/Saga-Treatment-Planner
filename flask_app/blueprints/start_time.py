@@ -1,9 +1,9 @@
 # start_time.py
 import json
-from os.path import exists
+import os.path
 from uuid import uuid4
 from flask import Blueprint, render_template, request, jsonify
-from extensions import basic_auth, db
+from extensions import db
 from models import Customer, Site, Field
 from flask_login import login_required, current_user
 
@@ -46,7 +46,7 @@ def main():
 def get_data():
     """ Gets JSON and returns it via GET request"""
     _json = {}
-    if exists("data.json"):
+    if os.path.exists("data.json"):
         _json = read_json()
 
     return jsonify(_json), 200
@@ -62,17 +62,17 @@ def post_data():
             if customer is None:
                 # Skip if customer not found
                 continue
-            
+
             site = Site.query.filter_by(name=line['site'], customer_id=customer.id).first()
             if site is None:
                 # Skip if site not found
                 continue
-            
+
             first_field = Field.query.filter_by(site_id=site.id).first()
             if first_field is None:
                 # Skip if fields not found
                 continue
-            
+
             line['lat'] = first_field.lat
             line['lng'] = first_field.lng
         write_json(data)
@@ -89,42 +89,42 @@ def add_customer():
 
         if 'customer' not in data:
             return jsonify({"message": "Missing 'Customer' in data"}), 400
-        
-        name = data['customer']
-        exists = Customer.query.filter_by(name=name).first()
 
-        if exists:
+        name = data['customer']
+        customer_exists = Customer.query.filter_by(name=name).first()
+
+        if customer_exists:
             return jsonify({"message": "Customer already exists"}), 200
-        
+
         uuid = str(uuid4())
         new_customer = Customer(name=name, uuid=uuid)
         db.session.add(new_customer)
         db.session.commit()
         return jsonify({"message": f"Added customer {name} with uuid {uuid}"}), 201
-    
+
     return jsonify({"message": "Unrecognized request"}), 400
 
 @start_time.route("/add/site", methods=["POST"])
 @login_required
 def add_site():
     """ Adds site to database """
-    
+
     if request.is_json:
         data = request.json
 
         for key in ['site', 'customer']:
             if key not in data:
                 return jsonify({"message": f"Missing {key} in data"}), 400
-        
+
         site_name = data['site']
         customer_name = data['customer']
 
         customer = Customer.query.filter_by(name=customer_name).first()
         if customer is None:
             return jsonify({"message": f"Customer '{customer_name}' not recognized"}), 404
-        
-        exists = Site.query.filter_by(name=site_name, customer_id=customer.id).first()
-        if exists:
+
+        site_exists = Site.query.filter_by(name=site_name, customer_id=customer.id).first()
+        if site_exists:
             return jsonify({"message": "Site already exists"}), 200
 
         uuid = str(uuid4())
@@ -145,7 +145,7 @@ def add_field():
         for key in ['customer', 'site', 'field', 'lat', 'lng']:
             if key not in data:
                 return jsonify({"message": f"Missing {key} in data"}), 400
-            
+
         lat = data['lat']
         lng = data['lng']
         field_name = data['field']
@@ -155,15 +155,15 @@ def add_field():
         customer = Customer.query.filter_by(name=customer_name).first()
         if customer is None:
             return jsonify({"message": f"Customer '{customer_name}' not recognized"}), 404
-        
+
         site = Site.query.filter_by(name=site_name, customer_id=customer.id).first()
         if site is None:
             return jsonify({"message": f"Site '{site_name}' not recognized"}), 404
-        
-        exists = Field.query.filter_by(name=field_name, site_id=site.id).first()
-        if exists:
+
+        field_exists = Field.query.filter_by(name=field_name, site_id=site.id).first()
+        if field_exists:
             return jsonify({"message": "Field already exists"}), 200
-        
+
         uuid = str(uuid4())
         new_field = Field(name=field_name, uuid=uuid, lat=lat, lng=lng, site_id=site.id)
         db.session.add(new_field)

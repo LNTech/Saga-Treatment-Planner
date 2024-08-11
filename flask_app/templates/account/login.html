@@ -10,7 +10,7 @@
 <div class="container">
     <div class="account-form">
         <h1>Log In</h1>
-        <form class="mt-5" method="POST" action="{{ url_for('account.post_login') }}">
+        <form class="mt-5" method="POST" action="{{ url_for('account.login') }}">
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
                 <input type="text" class="form-control" id="username" name="username" placeholder="Username...">
@@ -31,7 +31,7 @@
                     {% endif %}
                 {% endwith %}
             </div>
-            <small><a href="{{ url_for('account.get_register') }}">Register (with invite code)</a></small>
+            <small><a href="{{ url_for('account.register') }}">Register (with invite code)</a></small>
         </form>
     </div>
 </div>

@@ -12,10 +12,10 @@
                 </li>
             {% else %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('account.get_login') }}">Login</a>
+                    <a class="nav-link" href="{{ url_for('account.login') }}">Login</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('account.get_register') }}">Register</a>
+                    <a class="nav-link" href="{{ url_for('account.register') }}">Register</a>
                 </li>
             {% endif %}
             </ul>
@@ -31,7 +31,7 @@
                             {% if user.privileges == 'admin' %}
                                 <li><a class="dropdown-item" href="{{ url_for('account.generate_invite') }}">Generate Invite</a></li>
                             {% endif %}
-                            <li><a class="dropdown-item" href="{{ url_for('account.get_change_password') }}">Change Password</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('account.change_password') }}">Change Password</a></li>
                             <li><a class="dropdown-item hidden" href="{{ url_for('account.logout') }}">Logout</a></li>
                         </ul>
                     </li>
