@@ -1,0 +1,43 @@
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+  
+        <div class="collapse navbar-collapse" id="navbarScroll">
+            <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
+            {% if user %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('start_time.main') }}">Start Times</a>
+                </li>
+            {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('account.get_login') }}">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('account.get_register') }}">Register</a>
+                </li>
+            {% endif %}
+            </ul>
+  
+            {% if user %}
+            <div class="d-flex justify-content-end">
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">My Account</a>
+                        <ul class="dropdown-menu" id="account-dropdown">
+                            <li><a class="dropdown-item">{{ user.username|title }}</a></li>
+                            <li><hr class="dropdown-divider" id="dropdownDivider"></li>
+                            {% if user.privileges == 'admin' %}
+                                <li><a class="dropdown-item" href="{{ url_for('account.generate_invite') }}">Generate Invite</a></li>
+                            {% endif %}
+                            <li><a class="dropdown-item" href="{{ url_for('account.get_change_password') }}">Change Password</a></li>
+                            <li><a class="dropdown-item hidden" href="{{ url_for('account.logout') }}">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</nav>

@@ -5,6 +5,7 @@ from uuid import uuid4
 from flask import Blueprint, render_template, request, jsonify
 from extensions import basic_auth, db
 from models import Customer, Site, Field
+from flask_login import login_required, current_user
 
 
 start_time = Blueprint('start_time', __name__)
@@ -12,7 +13,10 @@ start_time = Blueprint('start_time', __name__)
 def read_json():
     """ Read json file """
     with open("data.json", "r", encoding="utf-8") as file:
-        data = json.load(file)
+        try:
+            data = json.load(file)
+        except json.decoder.JSONDecodeError:
+            return {}
     return data
 
 def write_json(data):
@@ -21,10 +25,11 @@ def write_json(data):
         json.dump(data, file, indent=4)
 
 @start_time.route("/")
-@basic_auth.required
+@login_required
 def main():
     """ Main route for displaying location selector """
     customers = db.session.query(Customer).all()
+    print(current_user.password)
 
     data = []
     for customer in customers:
@@ -34,10 +39,10 @@ def main():
             fields.extend(Field.query.filter_by(site_id=site.id).all())
         data.append((customer, sites, fields))
 
-    return render_template("treatment-start-time.html", data=data)
+    return render_template("start-time/treatment-start-time.html", data=data, user=current_user)
 
 @start_time.route("/data")
-@basic_auth.required
+@login_required
 def get_data():
     """ Gets JSON and returns it via GET request"""
     _json = {}
@@ -47,7 +52,7 @@ def get_data():
     return jsonify(_json), 200
 
 @start_time.route("/data", methods=["POST"])
-@basic_auth.required
+@login_required
 def post_data():
     """ Takes POST request and writes data to JSON file"""
     if request.is_json:
@@ -75,7 +80,7 @@ def post_data():
     return jsonify({}), 403
 
 @start_time.route("/add/customer", methods=["POST"])
-@basic_auth.required
+@login_required
 def add_customer():
     """ Adds customer to database"""
 
@@ -100,7 +105,7 @@ def add_customer():
     return jsonify({"message": "Unrecognized request"}), 400
 
 @start_time.route("/add/site", methods=["POST"])
-@basic_auth.required
+@login_required
 def add_site():
     """ Adds site to database """
     
@@ -130,7 +135,7 @@ def add_site():
     return jsonify({"message": "Unrecognized request"}), 400
 
 @start_time.route("/add/field", methods=["POST"])
-@basic_auth.required
+@login_required
 def add_field():
     """ Add field to database """
 

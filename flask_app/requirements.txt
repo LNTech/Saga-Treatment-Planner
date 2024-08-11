@@ -1,7 +1,9 @@
 Flask
 Flask-BasicAuth
 Flask-SQLAlchemy
+flask-login
 gunicorn
 schedule
 discord.py
 ephem
+uuid

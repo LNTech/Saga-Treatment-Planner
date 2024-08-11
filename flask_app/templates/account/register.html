@@ -1,0 +1,43 @@
+{% set title = "Register" %}
+
+{% extends "base.html" %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/account-form.css') }}" type="text/css"/>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="account-form">
+        <h1>Register</h1>
+        <form class="mt-5" method="POST" action="{{ url_for('account.post_register') }}">
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="Username..." required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Password..." required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Invite Code</label>
+                <input type="text" class="form-control" id="invite_code" name="invite_code" placeholder="Enter provided invite code here" required>
+            </div>
+            <div class="mb-3">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                    <div class="notification">
+                        <small>{{ messages[0] }}</small>
+                    </div>
+                    {% endif %}
+                {% endwith %}
+            </div>
+            <div class="mb-3 col-3">
+                <button type="submit" class="btn btn-success">Create Account</button>
+            </div>
+            <small>Have an account? <a href="{{ url_for('account.get_login') }}">Login</a></small>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
